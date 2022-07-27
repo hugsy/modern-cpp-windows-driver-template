@@ -74,7 +74,7 @@ DriverEntry(_In_ PDRIVER_OBJECT DriverObject, _In_ PUNICODE_STRING RegistryPath)
     UNREFERENCED_PARAMETER(RegistryPath);
 
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
-    ::RtlSecureZeroMemory(&g_pDeviceObject, sizeof(DEVICE_OBJECT));
+    g_pDeviceObject = nullptr;
 
     info(L"Loading '%s'\n", DEVICE_NAME);
     do
