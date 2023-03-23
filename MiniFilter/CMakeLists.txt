@@ -13,7 +13,7 @@ target_link_libraries(MinifilterDriver DriverLib WDK::FLTMGR WDK::KSECDD)
 
 set(CERT_CN "BlahCat Corp")
 set(CERT_STORE "PrivateCertStore")
-set(CERT_FILE "$<TARGET_FILE_DIR:DeviceDriver>/BlahCatTest.cer")
+set(CERT_FILE "$<TARGET_FILE_DIR:MinifilterDriver>/BlahCatTest.cer")
 
 
 add_custom_command(
