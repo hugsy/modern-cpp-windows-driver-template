@@ -2,9 +2,12 @@ name: "Code Scanning - Action"
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
+
   pull_request:
-    branches: [main]
+    branches: [main, dev]
+
+  workflow_dispatch:
 
 jobs:
   Audit:
@@ -24,8 +27,12 @@ jobs:
         with:
           languages: cpp
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
+      - name: Build
+        run: |
+          Import-Module .\.github\Invoke-VisualStudio.ps1
+          Invoke-VisualStudio2022x64
+          cmake -S . -B ./build -A x64
+          cmake --build ./build --verbose --config Debug
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
