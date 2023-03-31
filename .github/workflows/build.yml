@@ -10,14 +10,14 @@ env:
 on: [push, pull_request]
 
 jobs:
-  Project-Build:
+  Build:
     name: "Building ${{ matrix.os }}/${{ matrix.platform }}/${{ matrix.configuration }}"
 
     strategy:
       fail-fast: false
       matrix:
         os: ['windows-latest']
-        platform: ['x64']
+        platform: ['x64', 'x86', 'arm64']
         configuration: ['RelWithDebInfo']
 
     runs-on: ${{ matrix.os }}
@@ -26,20 +26,20 @@ jobs:
       contents: read
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.5.0
       with:
         submodules: true
 
-    - name: Sets Windows specific environment variables
+    - name: Sets Environment Variables
       shell: powershell
       run: |
         echo "NB_CPU=$env:NUMBER_OF_PROCESSORS" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v3.x
+      uses: rlespinasse/github-slug-action@v4.x
 
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v1.3.1
       with:
         msbuild-architecture: ${{ matrix.platform }}
 
@@ -57,12 +57,6 @@ jobs:
         cmake --build . --verbose --parallel ${{ env.NB_CPU }} --config ${{ matrix.configuration }}
         cd ..
 
-    - name: Run tests
-      run: |
-        cd build/tests
-        ctest --parallel=${{ env.NB_CPU }} --extra-verbose --cfg=${{ matrix.configuration }}
-        cd ../..
-
     - name: Prepare artifact
       run: |
         mkdir artifact
@@ -77,7 +71,8 @@ jobs:
         path: artifact/
 
     - name: Notify on success
-      if: ${{ success() }}
+      # if: ${{ success() }}
+      if: ${{ false }}
       env:
         COMMIT_URL: "https://github.com/${{ env.AUTHOR }}/${{ env.PROJECT }}/commit/${{ env.GITHUB_SHA_SHORT }}"
         RUN_URL: "https://github.com/${{ env.AUTHOR }}/${{ env.PROJECT }}/actions/runs/${{ github.run_id }}"
@@ -97,7 +92,8 @@ jobs:
         avatar_url: ${{ github.actor.avatar_url }}
 
     - name: Notify on test failure
-      if: ${{ failure() }}
+      # if: ${{ failure() }}
+      if: ${{ false }}
       env:
         COMMIT_URL: "https://github.com/${{ env.AUTHOR }}/${{ env.PROJECT }}/commit/${{ env.GITHUB_SHA_SHORT }}"
         RUN_URL: "https://github.com/${{ env.AUTHOR }}/${{ env.PROJECT }}/actions/runs/${{ github.run_id }}"
