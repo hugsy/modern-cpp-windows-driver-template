@@ -3,7 +3,7 @@ message(STATUS "Configuring DeviceDriver")
 wdk_add_driver(
     DeviceDriver
     KMDF
-        1.15
+    1.15
 
     DeviceDriver.cpp
 )
@@ -27,3 +27,6 @@ add_custom_command(
     COMMENT
     "Signing driver with self-signed certificate"
 )
+
+install(TARGETS DeviceDriver DESTINATION Drivers)
+install(FILES $<TARGET_PDB_FILE:DeviceDriver> DESTINATION Drivers/Debug)
