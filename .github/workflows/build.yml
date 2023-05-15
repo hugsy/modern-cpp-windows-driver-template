@@ -38,16 +38,12 @@ jobs:
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v4.x
 
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.3.1
-      with:
-        msbuild-architecture: ${{ matrix.platform }}
-
     - name: Prepare Windows environment
       if: matrix.os == 'windows-latest'
       shell: pwsh
       run: |
-        $true
+        Import-Module .\.github\Invoke-VisualStudio.ps1
+        Invoke-VisualStudio2022${{ matrix.platform }}
 
     - name: Build source
       run: |
