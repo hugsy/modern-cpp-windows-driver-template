@@ -18,18 +18,21 @@ void
 Log(_In_ const wchar_t* FormatString, ...);
 
 void
+Log(_In_ const char* FormatString, ...);
+
+void
 ntperror(_In_ const wchar_t* prefix, _In_ NTSTATUS Status);
 }; // namespace Log
 
 
 #ifdef _DEBUG
-#define dbg(fmt, ...) Log::Log(L"[=] " fmt, __VA_ARGS__)
+#define dbg(fmt, ...) Log::Log(L"[=] " fmt L"\n", __VA_ARGS__)
 #else
 #define dbg(fmt, ...)
 #endif // _DEBUG
 
-#define ok(fmt, ...) Log::Log(L"[+] " fmt, __VA_ARGS__)
-#define info(fmt, ...) Log::Log(L"[*] " fmt, __VA_ARGS__)
-#define warn(fmt, ...) Log::Log(L"[!] " fmt, __VA_ARGS__)
-#define err(fmt, ...) Log::Log(L"[-] " fmt, __VA_ARGS__)
-#define perror(fmt, ...) Log::ntperror(fmt, __VA_ARGS__)
+#define ok(fmt, ...) Log::Log(L"[+] " fmt L"\n", __VA_ARGS__)
+#define info(fmt, ...) Log::Log(L"[*] " fmt L"\n", __VA_ARGS__)
+#define warn(fmt, ...) Log::Log(L"[!] " fmt L"\n", __VA_ARGS__)
+#define err(fmt, ...) Log::Log(L"[-] " fmt L"\n", __VA_ARGS__)
+
