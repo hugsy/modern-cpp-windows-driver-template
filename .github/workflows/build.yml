@@ -63,4 +63,3 @@ jobs:
       with:
         name: ${{ env.PROJECT }}_${{ github.ref_name }}_${{ matrix.os }}_${{ matrix.platform }}_${{ github.sha }}
         path: artifact/
-        avatar_url: ${{ github.actor.avatar_url }}
