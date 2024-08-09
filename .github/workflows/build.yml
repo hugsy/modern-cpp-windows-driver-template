@@ -20,16 +20,16 @@ jobs:
       NB_CPU: 1
       CMAKE_FLAGS:
 
-    name: "Building ${{ matrix.os }}/${{ matrix.platform }}/${{ matrix.configuration }}"
+    name: "win${{ matrix.windows_version }}/${{ matrix.platform }}/${{ matrix.configuration }}"
 
     strategy:
       fail-fast: false
       matrix:
-        os: ['windows-2022', 'windows-2019']
+        windows_version: ['2022', '2019']
         platform: ['x64', 'win32', 'arm64']
         configuration: ['RelWithDebInfo', 'Debug']
 
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-${{ matrix.windows_version }}
     permissions:
       actions: read
       contents: read
@@ -45,18 +45,10 @@ jobs:
         echo "NB_CPU=$env:NUMBER_OF_PROCESSORS" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Prepare Windows environment
-      if: matrix.os == 'windows-2019'
       shell: pwsh
       run: |
         Import-Module .\.github\Invoke-VisualStudio.ps1
-        Invoke-VisualStudio2019${{ matrix.platform }}
-
-    - name: Prepare Windows environment
-      if: matrix.os == 'windows-2022'
-      shell: pwsh
-      run: |
-        Import-Module .\.github\Invoke-VisualStudio.ps1
-        Invoke-VisualStudio2022${{ matrix.platform }}
+        Invoke-VisualStudio${{ matrix.windows_version }}${{ matrix.platform }}
 
     - name: Build source
       run: |
@@ -71,5 +63,5 @@ jobs:
     - name: Publish artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.PROJECT }}_${{ github.ref_name }}_${{ matrix.os }}_${{ matrix.platform }}_${{ matrix.configuration }}_${{ github.sha }}
+        name: ${{ env.PROJECT }}_${{ github.ref_name }}_win${{ matrix.windows_version }}_${{ matrix.platform }}_${{ matrix.configuration }}_${{ github.sha }}
         path: artifact/
