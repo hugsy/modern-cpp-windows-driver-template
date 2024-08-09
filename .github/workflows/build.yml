@@ -3,8 +3,6 @@ name: "Build Driver"
 env:
   PROJECT: changeme
   AUTHOR: hugsy
-  VERBOSE: 1
-  CMAKE_FLAGS: "-DDEBUG=ON"
 
 on:
   workflow_dispatch:
@@ -17,14 +15,19 @@ on:
 
 jobs:
   build:
+    env:
+      VERBOSE: 1
+      NB_CPU: 1
+      CMAKE_FLAGS:
+
     name: "Building ${{ matrix.os }}/${{ matrix.platform }}/${{ matrix.configuration }}"
 
     strategy:
       fail-fast: false
       matrix:
-        os: ['windows-latest']
-        platform: ['x64', 'x86', 'arm64']
-        configuration: ['RelWithDebInfo']
+        os: ['windows-2022', 'windows-2019']
+        platform: ['x64', 'win32', 'arm64']
+        configuration: ['RelWithDebInfo', 'Debug']
 
     runs-on: ${{ matrix.os }}
     permissions:
@@ -42,7 +45,14 @@ jobs:
         echo "NB_CPU=$env:NUMBER_OF_PROCESSORS" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Prepare Windows environment
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2019'
+      shell: pwsh
+      run: |
+        Import-Module .\.github\Invoke-VisualStudio.ps1
+        Invoke-VisualStudio2019${{ matrix.platform }}
+
+    - name: Prepare Windows environment
+      if: matrix.os == 'windows-2022'
       shell: pwsh
       run: |
         Import-Module .\.github\Invoke-VisualStudio.ps1
@@ -50,7 +60,7 @@ jobs:
 
     - name: Build source
       run: |
-        cmake -S . -B build ${{ env.CMAKE_FLAGS }}
+        cmake -S . -B build -A ${{ matrix.platform }} ${{ env.CMAKE_FLAGS }}
         cmake --build ./build --verbose --parallel ${{ env.NB_CPU }} --config ${{ matrix.configuration }}
 
     - name: Prepare artifact
@@ -61,5 +71,5 @@ jobs:
     - name: Publish artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.PROJECT }}_${{ github.ref_name }}_${{ matrix.os }}_${{ matrix.platform }}_${{ github.sha }}
+        name: ${{ env.PROJECT }}_${{ github.ref_name }}_${{ matrix.os }}_${{ matrix.platform }}_${{ matrix.configuration }}_${{ github.sha }}
         path: artifact/
